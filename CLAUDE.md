@@ -10,5 +10,5 @@ I am Aaysha, building FlashCart to learn. Follow these rules:
 
 ## Environment
 - Windows, IntelliJ IDEA, 8 GB RAM — keep containers lean.
-- Java 21 (Temurin), Spring Boot 3.x, Maven.
+- Java 21 (Temurin), Spring Boot 4.1, Maven.
 - PostgreSQL 16 + pgvector, Kafka (KRaft), Redis.
