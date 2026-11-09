@@ -7,6 +7,7 @@ import com.flashcart.auth.web.dto.RegisterRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.flashcart.auth.web.dto.LoginRequest;
 
 @Service
 public class AuthService {
@@ -28,4 +29,15 @@ public class AuthService {
         String hash = passwordEncoder.encode(request.password());
         return userRepository.save(new User(email, hash, Role.CUSTOMER));
     }
+    @Transactional(readOnly = true)
+    public User login(LoginRequest request) {
+        String email = request.email().trim().toLowerCase();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(InvalidCredentialsException::new);
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw new InvalidCredentialsException();
+        }
+        return user;
+    }
 }
+
