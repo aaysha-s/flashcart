@@ -39,5 +39,10 @@ public class AuthService {
         }
         return user;
     }
+    @Transactional(readOnly = true)
+    public User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(InvalidCredentialsException::new);
+    }
 }
 

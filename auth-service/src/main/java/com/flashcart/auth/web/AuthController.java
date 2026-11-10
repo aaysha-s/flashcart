@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,5 +41,10 @@ public class AuthController {
         User user = authService.login(request);
         String token = tokenService.createAccessToken(user);
         return ResponseEntity.ok(TokenResponse.bearer(token, tokenService.accessTokenTtlSeconds()));
+    }
+    @GetMapping("/me")
+    public UserResponse me(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.valueOf(jwt.getSubject());
+        return UserResponse.from(authService.getUser(userId));
     }
 }
