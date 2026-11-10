@@ -17,3 +17,4 @@ flashcart:
     secret: ${JWT_SECRET}
     issuer: flashcart-auth
     access-token-ttl: 15m
+    refresh-token-ttl: 7d
