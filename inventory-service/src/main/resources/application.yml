@@ -12,6 +12,13 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      acks: all
+    consumer:
+      group-id: inventory-service
+      auto-offset-reset: earliest
 flashcart:
   jwt:
     secret: ${JWT_SECRET}
