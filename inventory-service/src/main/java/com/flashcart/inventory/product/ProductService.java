@@ -10,9 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final OrderReservationRepository reservationRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository,
+                          OrderReservationRepository reservationRepository) {
         this.productRepository = productRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     @Transactional(readOnly = true)
@@ -39,10 +42,24 @@ public class ProductService {
         product.setStock(stock);
         return product;
     }
+
     @Transactional
     public Product reserve(Long id, int quantity) {
         Product product = get(id);
         product.reserve(quantity);
         return product;
+    }
+
+    @Transactional
+    public OrderReservation reserveForOrder(Long orderId, Long productId, int quantity) {
+        Product product = get(productId);
+        product.reserve(quantity);
+        return reservationRepository.save(OrderReservation.reserved(
+                orderId, productId, quantity, product.getPricePaise() * quantity));
+    }
+
+    @Transactional
+    public OrderReservation recordRejection(Long orderId, Long productId, int quantity, String reason) {
+        return reservationRepository.save(OrderReservation.rejected(orderId, productId, quantity, reason));
     }
 }

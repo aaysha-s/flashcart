@@ -4,6 +4,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 
 @Service
 public class StockReservationService {
@@ -17,14 +18,22 @@ public class StockReservationService {
     }
 
     public Product reserve(Long productId, int quantity) {
-        for (int attempt = 1; ; attempt++) {
+        return withRetry(productId, () -> productService.reserve(productId, quantity));
+    }
+
+    public OrderReservation reserveForOrder(Long orderId, Long productId, int quantity) {
+        return withRetry(productId, () -> productService.reserveForOrder(orderId, productId, quantity));
+    }
+
+    private <T> T withRetry(Long productId, Supplier<T> attempt) {
+        for (int i = 1; ; i++) {
             try {
-                return productService.reserve(productId, quantity);
+                return attempt.get();
             } catch (ObjectOptimisticLockingFailureException e) {
-                if (attempt == MAX_ATTEMPTS) {
+                if (i == MAX_ATTEMPTS) {
                     throw new StockConflictException(productId);
                 }
-                backOff(attempt, productId);
+                backOff(i, productId);
             }
         }
     }
