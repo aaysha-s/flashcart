@@ -8,6 +8,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.flashcart.inventory.product.InsufficientStockException;
+import com.flashcart.inventory.product.StockConflictException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,6 +42,19 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST, "Request body is missing or is not valid JSON");
         problem.setTitle("Malformed request");
+        return problem;
+    }
+    @ExceptionHandler(InsufficientStockException.class)
+    ProblemDetail handleInsufficientStock(InsufficientStockException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Insufficient stock");
+        return problem;
+    }
+
+    @ExceptionHandler(StockConflictException.class)
+    ProblemDetail handleStockConflict(StockConflictException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Stock conflict");
         return problem;
     }
 }

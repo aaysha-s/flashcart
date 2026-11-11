@@ -39,4 +39,10 @@ public class ProductService {
         product.setStock(stock);
         return product;
     }
+    @Transactional
+    public Product reserve(Long id, int quantity) {
+        Product product = get(id);
+        product.reserve(quantity);
+        return product;
+    }
 }

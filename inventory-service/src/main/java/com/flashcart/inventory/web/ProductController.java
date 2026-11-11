@@ -2,8 +2,10 @@ package com.flashcart.inventory.web;
 
 import com.flashcart.inventory.product.Product;
 import com.flashcart.inventory.product.ProductService;
+import com.flashcart.inventory.product.StockReservationService;
 import com.flashcart.inventory.web.dto.CreateProductRequest;
 import com.flashcart.inventory.web.dto.ProductResponse;
+import com.flashcart.inventory.web.dto.ReserveRequest;
 import com.flashcart.inventory.web.dto.UpdateStockRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +22,11 @@ import java.net.URI;
 public class ProductController {
 
     private final ProductService productService;
+    private final StockReservationService reservationService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, StockReservationService reservationService) {
         this.productService = productService;
+        this.reservationService = reservationService;
     }
 
     @GetMapping
@@ -47,5 +51,10 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public ProductResponse updateStock(@PathVariable Long id, @Valid @RequestBody UpdateStockRequest request) {
         return ProductResponse.from(productService.updateStock(id, request.stock()));
+    }
+
+    @PostMapping("/{id}/reserve")
+    public ProductResponse reserve(@PathVariable Long id, @Valid @RequestBody ReserveRequest request) {
+        return ProductResponse.from(reservationService.reserve(id, request.quantity()));
     }
 }
