@@ -3,14 +3,17 @@ package com.flashcart.order.service;
 import com.flashcart.order.domain.Order;
 import com.flashcart.order.domain.OrderRepository;
 import com.flashcart.order.messaging.OrderPlacedEvent;
+import com.flashcart.order.messaging.Topics;
+import com.flashcart.order.outbox.OutboxEvent;
+import com.flashcart.order.outbox.OutboxRepository;
 import com.flashcart.order.web.dto.PlaceOrderRequest;
-import org.springframework.context.ApplicationEventPublisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 public class OrderService {
@@ -18,19 +21,27 @@ public class OrderService {
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
-    private final ApplicationEventPublisher events;
+    private final OutboxRepository outboxRepository;
+    private final JsonMapper jsonMapper;
 
-    public OrderService(OrderRepository orderRepository, ApplicationEventPublisher events) {
+    public OrderService(OrderRepository orderRepository,
+                        OutboxRepository outboxRepository,
+                        JsonMapper jsonMapper) {
         this.orderRepository = orderRepository;
-        this.events = events;
+        this.outboxRepository = outboxRepository;
+        this.jsonMapper = jsonMapper;
     }
 
     @Transactional
     public Order place(Long customerId, PlaceOrderRequest request) {
         Order order = orderRepository.save(
                 new Order(customerId, request.productId(), request.quantity()));
-        events.publishEvent(new OrderPlacedEvent(
-                order.getId(), customerId, order.getProductId(), order.getQuantity()));
+        OrderPlacedEvent event = new OrderPlacedEvent(
+                order.getId(), customerId, order.getProductId(), order.getQuantity());
+        outboxRepository.save(new OutboxEvent(
+                Topics.ORDER_PLACED,
+                String.valueOf(order.getProductId()),
+                jsonMapper.writeValueAsString(event)));
         return order;
     }
 
@@ -45,6 +56,7 @@ public class OrderService {
                 .filter(order -> order.getCustomerId().equals(customerId))
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
+
     @Transactional
     public void confirm(Long orderId, long totalPaise) {
         orderRepository.findById(orderId).ifPresentOrElse(order -> {
