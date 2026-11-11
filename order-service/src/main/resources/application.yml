@@ -12,3 +12,8 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+
+flashcart:
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: flashcart-auth
