@@ -3,6 +3,8 @@ package com.flashcart.inventory.product;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import com.flashcart.inventory.TestcontainersConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(properties = "flashcart.jwt.secret=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+@SpringBootTest
+@Import(TestcontainersConfiguration.class)
 class StockReservationConcurrencyTest {
-
     @Autowired
     StockReservationService reservationService;
 
