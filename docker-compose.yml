@@ -127,5 +127,13 @@ services:
     depends_on:
       - prometheus
     mem_limit: 256m
+  jaeger:
+    image: jaegertracing/jaeger:2.1.0
+    container_name: flashcart-jaeger
+    profiles: [observability]
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+    mem_limit: 256m
 volumes:
   pgdata:
