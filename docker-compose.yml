@@ -116,13 +116,14 @@ services:
   grafana:
     image: grafana/grafana:12.1.0
     container_name: flashcart-grafana
-    profiles: [ observability ]
+    profiles: [observability]
     ports:
       - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
-      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro    ← found line
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
     mem_limit: 256m
