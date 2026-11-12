@@ -44,6 +44,62 @@ services:
       timeout: 10s
       retries: 10
       start_period: 20s
+  auth-service:
+    build: ./auth-service
+    image: flashcart/auth-service:local
+    profiles: [ app ]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/auth_db
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 512m
 
+  inventory-service:
+    build: ./inventory-service
+    image: flashcart/inventory-service:local
+    profiles: [ app ]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory_db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    mem_limit: 512m
+
+  order-service:
+    build: ./order-service
+    image: flashcart/order-service:local
+    profiles: [ app ]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/order_db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    mem_limit: 512m
+
+  gateway:
+    build: ./gateway
+    image: flashcart/gateway:local
+    profiles: [ app ]
+    ports:
+      - "8080:8080"
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      INVENTORY_SERVICE_URL: http://inventory-service:8082
+      ORDER_SERVICE_URL: http://order-service:8083
+    depends_on:
+      - auth-service
+      - inventory-service
+      - order-service
+    mem_limit: 384m
 volumes:
   pgdata:
