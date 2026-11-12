@@ -21,3 +21,15 @@ spring:
               uri: ${ORDER_SERVICE_URL:http://localhost:8083}
               predicates:
                 - Path=/api/orders/**
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
