@@ -27,3 +27,9 @@ replay_pid*
 *.iml
 out/
 .env
+# Terraform
+infra/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
