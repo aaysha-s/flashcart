@@ -5,6 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.flashcart.inventory.web.dto.ProductResponse;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 @Service
 public class ProductService {
@@ -36,6 +39,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @CacheEvict(cacheNames = "products", key = "#id")
     @Transactional
     public Product updateStock(Long id, int stock) {
         Product product = get(id);
@@ -43,6 +47,7 @@ public class ProductService {
         return product;
     }
 
+    @CacheEvict(cacheNames = "products", key = "#id")
     @Transactional
     public Product reserve(Long id, int quantity) {
         Product product = get(id);
@@ -50,6 +55,7 @@ public class ProductService {
         return product;
     }
 
+    @CacheEvict(cacheNames = "products", key = "#productId")
     @Transactional
     public OrderReservation reserveForOrder(Long orderId, Long productId, int quantity) {
         Product product = get(productId);
@@ -61,5 +67,11 @@ public class ProductService {
     @Transactional
     public OrderReservation recordRejection(Long orderId, Long productId, int quantity, String reason) {
         return reservationRepository.save(OrderReservation.rejected(orderId, productId, quantity, reason));
+    }
+
+    @Cacheable(cacheNames = "products", key = "#id")
+    @Transactional(readOnly = true)
+    public ProductResponse getResponse(Long id) {
+        return ProductResponse.from(get(id));
     }
 }

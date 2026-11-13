@@ -36,7 +36,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ProductResponse get(@PathVariable Long id) {
-        return ProductResponse.from(productService.get(id));
+        return productService.getResponse(id);
     }
 
     @PostMapping
