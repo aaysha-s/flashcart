@@ -9,3 +9,7 @@ output "subnet_ids" {
 output "db_endpoint" {
   value = aws_db_instance.main.address
 }
+
+output "app_security_group_id" {
+  value = aws_security_group.app.id
+}
