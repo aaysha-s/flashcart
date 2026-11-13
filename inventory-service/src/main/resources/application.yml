@@ -14,8 +14,10 @@ spring:
       port: 6379
   cache:
     type: redis
+    cache-names: products
     redis:
       time-to-live: 60s
+      enable-statistics: true
   jpa:
     hibernate:
       ddl-auto: validate
