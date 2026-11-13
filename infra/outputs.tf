@@ -5,3 +5,7 @@ output "vpc_id" {
 output "subnet_ids" {
   value = data.aws_subnets.public.ids
 }
+
+output "db_endpoint" {
+  value = aws_db_instance.main.address
+}
