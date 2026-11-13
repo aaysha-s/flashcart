@@ -14,6 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.json.JsonMapper;
+import io.micrometer.tracing.TraceContext;
+import io.micrometer.tracing.Tracer;
+import io.micrometer.tracing.propagation.Propagator;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class OrderService {
@@ -23,14 +28,22 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OutboxRepository outboxRepository;
     private final JsonMapper jsonMapper;
+    private final Tracer tracer;
+    private final Propagator propagator;
 
     public OrderService(OrderRepository orderRepository,
                         OutboxRepository outboxRepository,
-                        JsonMapper jsonMapper) {
+                        JsonMapper jsonMapper,
+                        Tracer tracer,
+                        Propagator propagator) {
         this.orderRepository = orderRepository;
         this.outboxRepository = outboxRepository;
         this.jsonMapper = jsonMapper;
+        this.tracer = tracer;
+        this.propagator = propagator;
     }
+
+
 
     @Transactional
     public Order place(Long customerId, PlaceOrderRequest request) {
@@ -41,8 +54,19 @@ public class OrderService {
         outboxRepository.save(new OutboxEvent(
                 Topics.ORDER_PLACED,
                 String.valueOf(order.getProductId()),
-                jsonMapper.writeValueAsString(event)));
+                jsonMapper.writeValueAsString(event),
+                currentTraceparent()));
         return order;
+    }
+
+    private String currentTraceparent() {
+        TraceContext context = tracer.currentTraceContext().context();
+        if (context == null) {
+            return null;
+        }
+        Map<String, String> carrier = new HashMap<>();
+        propagator.inject(context, carrier, Map::put);
+        return carrier.get("traceparent");
     }
 
     @Transactional(readOnly = true)

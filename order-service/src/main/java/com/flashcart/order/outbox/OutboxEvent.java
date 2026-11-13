@@ -2,6 +2,7 @@ package com.flashcart.order.outbox;
 
 import jakarta.persistence.*;
 
+
 import java.time.Instant;
 
 @Entity
@@ -27,14 +28,18 @@ public class OutboxEvent {
     @Column(name = "published_at")
     private Instant publishedAt;
 
+    @Column(length = 100)
+    private String traceparent;
+
     protected OutboxEvent() {
         // required by JPA
     }
 
-    public OutboxEvent(String topic, String messageKey, String payload) {
+    public OutboxEvent(String topic, String messageKey, String payload, String traceparent) {
         this.topic = topic;
         this.messageKey = messageKey;
         this.payload = payload;
+        this.traceparent = traceparent;
     }
 
     @PrePersist
@@ -51,4 +56,5 @@ public class OutboxEvent {
     public String getMessageKey() { return messageKey; }
     public String getPayload() { return payload; }
     public Instant getPublishedAt() { return publishedAt; }
+    public String getTraceparent() { return traceparent; }
 }
