@@ -113,6 +113,17 @@ resource "aws_ecs_service" "app" {
     registry_arn = aws_service_discovery_service.app[each.key].arn
   }
 
+  dynamic "load_balancer" {
+    for_each = each.key == "gateway" ? [1] : []
+    content {
+      target_group_arn = aws_lb_target_group.gateway.arn
+      container_name   = "gateway"
+      container_port   = 8080
+    }
+  }
+
+  health_check_grace_period_seconds = each.key == "gateway" ? 120 : null
+
   deployment_circuit_breaker {
     enable   = true
     rollback = false
