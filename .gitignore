@@ -33,3 +33,4 @@ infra/.terraform/
 *.tfstate.*
 *.tfvars
 crash.log
+loadtest/result.txt
