@@ -14,11 +14,15 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final OrderReservationRepository reservationRepository;
+    private final ProductSearchService searchService;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ProductService.class);
 
     public ProductService(ProductRepository productRepository,
-                          OrderReservationRepository reservationRepository) {
+                          OrderReservationRepository reservationRepository,
+                          ProductSearchService searchService) {
         this.productRepository = productRepository;
         this.reservationRepository = reservationRepository;
+        this.searchService = searchService;
     }
 
     @Transactional(readOnly = true)
@@ -34,9 +38,14 @@ public class ProductService {
 
     @Transactional
     public Product create(CreateProductRequest request) {
-        Product product = new Product(request.name().trim(), request.description(),
-                request.pricePaise(), request.stock());
-        return productRepository.save(product);
+        Product product = productRepository.save(new Product(request.name().trim(), request.description(),
+                request.pricePaise(), request.stock()));
+        try {
+            searchService.index(product);
+        } catch (RuntimeException e) {
+            log.warn("Could not index product {} for search; run reindex later", product.getId(), e);
+        }
+        return product;
     }
 
     @CacheEvict(cacheNames = "products", key = "#id")
