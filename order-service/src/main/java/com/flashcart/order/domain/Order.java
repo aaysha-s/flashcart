@@ -67,20 +67,33 @@ public class Order {
         return status == OrderStatus.PENDING;
     }
 
+    /** Still in progress: stock or payment not settled yet. */
+    public boolean isOpen() {
+        return status == OrderStatus.PENDING || status == OrderStatus.AWAITING_PAYMENT;
+    }
+
+    public void markAwaitingPayment(long totalPaise) {
+        if (!isPending()) {
+            throw new IllegalStateException("Order " + id + " is already " + status);
+        }
+        this.status = OrderStatus.AWAITING_PAYMENT;
+        this.totalPaise = totalPaise;
+    }
+
     public void confirm(long totalPaise) {
-        requirePending();
+        requireOpen();
         this.status = OrderStatus.CONFIRMED;
         this.totalPaise = totalPaise;
     }
 
     public void cancel(String reason) {
-        requirePending();
+        requireOpen();
         this.status = OrderStatus.CANCELLED;
         this.failureReason = reason;
     }
 
-    private void requirePending() {
-        if (!isPending()) {
+    private void requireOpen() {
+        if (!isOpen()) {
             throw new IllegalStateException("Order " + id + " is already " + status);
         }
     }

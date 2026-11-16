@@ -19,7 +19,7 @@ public class StockReplyListener {
     @KafkaListener(topics = Topics.STOCK_RESERVED)
     public void onStockReserved(String payload) {
         StockReservedEvent event = jsonMapper.readValue(payload, StockReservedEvent.class);
-        orderService.confirm(event.orderId(), event.totalPaise());
+        orderService.markAwaitingPayment(event.orderId(), event.totalPaise());
     }
 
     @KafkaListener(topics = Topics.STOCK_REJECTED)

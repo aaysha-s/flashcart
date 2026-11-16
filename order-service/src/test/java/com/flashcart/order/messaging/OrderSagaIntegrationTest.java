@@ -49,19 +49,53 @@ class OrderSagaIntegrationTest {
     }
 
     @Test
-    void stockReservedConfirmsOrderAndLateRejectionIsIgnored() throws Exception {
+    void stockReservedWaitsForPaymentThenPaymentCompletedConfirms() throws Exception {
         Long orderId = orderRepository.save(new Order(7L, 1L, 2)).getId();
 
         kafkaTemplate.send(Topics.STOCK_RESERVED, String.valueOf(orderId),
                 "{\"orderId\":%d,\"productId\":1,\"quantity\":2,\"totalPaise\":599800}".formatted(orderId)).get();
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+                assertThat(statusOf(orderId)).isEqualTo(OrderStatus.AWAITING_PAYMENT));
 
+        kafkaTemplate.send(Topics.PAYMENT_COMPLETED, String.valueOf(orderId),
+                "{\"orderId\":%d,\"amountPaise\":599800}".formatted(orderId)).get();
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                 assertThat(statusOf(orderId)).isEqualTo(OrderStatus.CONFIRMED));
         assertThat(orderRepository.findById(orderId).orElseThrow().getTotalPaise()).isEqualTo(599800L);
 
         kafkaTemplate.send(Topics.STOCK_REJECTED, String.valueOf(orderId),
                 "{\"orderId\":%d,\"productId\":1,\"reason\":\"late\"}".formatted(orderId)).get();
+        await().during(Duration.ofSeconds(3)).atMost(Duration.ofSeconds(10)).untilAsserted(() ->
+                assertThat(statusOf(orderId)).isEqualTo(OrderStatus.CONFIRMED));
+    }
 
+    @Test
+    void paymentFailedCancelsOrderWithReason() throws Exception {
+        Long orderId = orderRepository.save(new Order(7L, 1L, 2)).getId();
+
+        kafkaTemplate.send(Topics.STOCK_RESERVED, String.valueOf(orderId),
+                "{\"orderId\":%d,\"productId\":1,\"quantity\":2,\"totalPaise\":599800}".formatted(orderId)).get();
+        kafkaTemplate.send(Topics.PAYMENT_FAILED, String.valueOf(orderId),
+                "{\"orderId\":%d,\"productId\":1,\"quantity\":2,\"reason\":\"Card declined\"}".formatted(orderId)).get();
+
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            Order order = orderRepository.findById(orderId).orElseThrow();
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+            assertThat(order.getFailureReason()).isEqualTo("Payment failed: Card declined");
+        });
+    }
+
+    @Test
+    void paymentResultArrivingBeforeStockReservedStillConfirms() throws Exception {
+        Long orderId = orderRepository.save(new Order(7L, 1L, 1)).getId();
+
+        kafkaTemplate.send(Topics.PAYMENT_COMPLETED, String.valueOf(orderId),
+                "{\"orderId\":%d,\"amountPaise\":199900}".formatted(orderId)).get();
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+                assertThat(statusOf(orderId)).isEqualTo(OrderStatus.CONFIRMED));
+
+        kafkaTemplate.send(Topics.STOCK_RESERVED, String.valueOf(orderId),
+                "{\"orderId\":%d,\"productId\":1,\"quantity\":1,\"totalPaise\":199900}".formatted(orderId)).get();
         await().during(Duration.ofSeconds(3)).atMost(Duration.ofSeconds(10)).untilAsserted(() ->
                 assertThat(statusOf(orderId)).isEqualTo(OrderStatus.CONFIRMED));
     }

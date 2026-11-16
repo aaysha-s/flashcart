@@ -82,26 +82,38 @@ public class OrderService {
     }
 
     @Transactional
-    public void confirm(Long orderId, long totalPaise) {
+    public void markAwaitingPayment(Long orderId, long totalPaise) {
         orderRepository.findById(orderId).ifPresentOrElse(order -> {
             if (!order.isPending()) {
-                log.info("Order {} already {}, ignoring duplicate StockReserved", orderId, order.getStatus());
+                log.info("Order {} already {}, ignoring StockReserved", orderId, order.getStatus());
+                return;
+            }
+            order.markAwaitingPayment(totalPaise);
+            log.info("Order {} AWAITING_PAYMENT, total {} paise", orderId, totalPaise);
+        }, () -> log.warn("StockReserved for unknown order {}", orderId));
+    }
+
+    @Transactional
+    public void confirm(Long orderId, long totalPaise) {
+        orderRepository.findById(orderId).ifPresentOrElse(order -> {
+            if (!order.isOpen()) {
+                log.info("Order {} already {}, ignoring PaymentCompleted", orderId, order.getStatus());
                 return;
             }
             order.confirm(totalPaise);
             log.info("Order {} CONFIRMED, total {} paise", orderId, totalPaise);
-        }, () -> log.warn("StockReserved for unknown order {}", orderId));
+        }, () -> log.warn("PaymentCompleted for unknown order {}", orderId));
     }
 
     @Transactional
     public void cancel(Long orderId, String reason) {
         orderRepository.findById(orderId).ifPresentOrElse(order -> {
-            if (!order.isPending()) {
-                log.info("Order {} already {}, ignoring duplicate StockRejected", orderId, order.getStatus());
+            if (!order.isOpen()) {
+                log.info("Order {} already {}, ignoring cancellation", orderId, order.getStatus());
                 return;
             }
             order.cancel(reason);
             log.info("Order {} CANCELLED: {}", orderId, reason);
-        }, () -> log.warn("StockRejected for unknown order {}", orderId));
+        }, () -> log.warn("Cancellation for unknown order {}", orderId));
     }
 }

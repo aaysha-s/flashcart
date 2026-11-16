@@ -22,4 +22,14 @@ public class KafkaTopicsConfig {
     NewTopic stockRejectedTopic() {
         return TopicBuilder.name(Topics.STOCK_REJECTED).partitions(3).replicas(1).build();
     }
+
+    @Bean
+    NewTopic paymentCompletedTopic() {
+        return TopicBuilder.name(Topics.PAYMENT_COMPLETED).partitions(3).replicas(1).build();
+    }
+
+    @Bean
+    NewTopic paymentFailedTopic() {
+        return TopicBuilder.name(Topics.PAYMENT_FAILED).partitions(3).replicas(1).build();
+    }
 }
