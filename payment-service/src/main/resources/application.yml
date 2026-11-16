@@ -1,0 +1,55 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payment_db
+    username: flashcart
+    password: flashcart
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      acks: all
+    consumer:
+      group-id: payment-service
+      auto-offset-reset: earliest
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
+
+flashcart:
+  payment:
+    failure-rate: ${PAYMENT_FAILURE_RATE:0.1}     # 10% of payments fail
+    processing-delay-ms: ${PAYMENT_DELAY_MS:150}  # pretend to call a bank
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+  otlp:
+    metrics:
+      export:
+        enabled: false
