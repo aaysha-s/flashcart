@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>FlashCart Live</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 32px; background: #f7f7f5; color: #222; }
+        table { border-collapse: collapse; min-width: 420px; background: #fff; }
+        th, td { padding: 8px 14px; border-bottom: 1px solid #ddd; text-align: left; }
+        .flash { animation: flash 0.8s; }
+        @keyframes flash { from { background: #ffe9a8; } to { background: #fff; } }
+        #status { font-weight: 600; }
+    </style>
+</head>
+<body>
+<h1>FlashCart live stock</h1>
+<p>Status: <span id="status">Connecting…</span></p>
+<table>
+    <thead><tr><th>Product</th><th>Stock</th><th>Kafka → browser</th></tr></thead>
+    <tbody id="rows"></tbody>
+</table>
+<script>
+    const statusEl = document.getElementById('status');
+    const rowsEl = document.getElementById('rows');
+    const rows = {};
+
+    function connect() {
+        const ws = new WebSocket(`ws://${location.host}/ws/stock`);
+        ws.onopen = () => statusEl.textContent = 'Connected';
+        ws.onclose = () => {
+            statusEl.textContent = 'Disconnected, retrying…';
+            setTimeout(connect, 2000);
+        };
+        ws.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            if (msg.type !== 'stock') return;
+            const latencyMs = Date.now() - msg.changedAtEpochMs;
+            let row = rows[msg.productId];
+            if (!row) {
+                row = document.createElement('tr');
+                rowsEl.appendChild(row);
+                rows[msg.productId] = row;
+            }
+            row.innerHTML = `<td>#${msg.productId}</td><td>${msg.stock}</td><td>${latencyMs} ms</td>`;
+            row.classList.remove('flash');
+            void row.offsetWidth; // restart the animation
+            row.classList.add('flash');
+        };
+    }
+
+    connect();
+</script>
+</body>
+</html>
