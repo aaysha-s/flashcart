@@ -112,6 +112,22 @@ services:
         condition: service_healthy
     mem_limit: 384m
 
+  live-service:
+    build: ./live-service
+    image: flashcart/live-service:local
+    profiles: [ app ]
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    mem_limit: 384m
+
   gateway:
     build: ./gateway
     image: flashcart/gateway:local

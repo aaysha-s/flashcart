@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [auth-service, inventory-service, order-service, payment-service, gateway]
+        service: [auth-service, inventory-service, order-service, payment-service, live-service, gateway]
     defaults:
       run:
         working-directory: ${{ matrix.service }}
@@ -50,7 +50,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        service: [auth-service, inventory-service, order-service, payment-service, gateway]
+        service: [auth-service, inventory-service, order-service, payment-service, live-service, gateway]
 
     steps:
       - uses: actions/checkout@v6
