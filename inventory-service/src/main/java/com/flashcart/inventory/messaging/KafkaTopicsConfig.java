@@ -12,4 +12,9 @@ public class KafkaTopicsConfig {
     NewTopic orderPlacedTopic() {
         return TopicBuilder.name(Topics.ORDER_PLACED).partitions(3).replicas(1).build();
     }
+
+    @Bean
+    NewTopic stockChangedTopic() {
+        return TopicBuilder.name(Topics.STOCK_CHANGED).partitions(3).replicas(1).build();
+    }
 }

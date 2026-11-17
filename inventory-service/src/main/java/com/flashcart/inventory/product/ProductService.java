@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.flashcart.inventory.web.dto.ProductResponse;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
+import java.time.Instant;
 
 @Service
 public class ProductService {
@@ -17,12 +19,16 @@ public class ProductService {
     private final ProductSearchService searchService;
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ProductService.class);
 
+    private final ApplicationEventPublisher events;
+
     public ProductService(ProductRepository productRepository,
                           OrderReservationRepository reservationRepository,
-                          ProductSearchService searchService) {
+                          ProductSearchService searchService,
+                          ApplicationEventPublisher events) {
         this.productRepository = productRepository;
         this.reservationRepository = reservationRepository;
         this.searchService = searchService;
+        this.events = events;
     }
 
     @Transactional(readOnly = true)
@@ -45,6 +51,7 @@ public class ProductService {
         } catch (RuntimeException e) {
             log.warn("Could not index product {} for search; run reindex later", product.getId(), e);
         }
+        announce(product);
         return product;
     }
 
@@ -53,6 +60,7 @@ public class ProductService {
     public Product updateStock(Long id, int stock) {
         Product product = get(id);
         product.setStock(stock);
+        announce(product);
         return product;
     }
 
@@ -61,6 +69,7 @@ public class ProductService {
     public Product reserve(Long id, int quantity) {
         Product product = get(id);
         product.reserve(quantity);
+        announce(product);
         return product;
     }
 
@@ -69,6 +78,7 @@ public class ProductService {
     public OrderReservation reserveForOrder(Long orderId, Long productId, int quantity) {
         Product product = get(productId);
         product.reserve(quantity);
+        announce(product);
         return reservationRepository.save(OrderReservation.reserved(
                 orderId, productId, quantity, product.getPricePaise() * quantity));
     }
@@ -83,6 +93,7 @@ public class ProductService {
         Product product = get(reservation.getProductId());
         product.release(reservation.getQuantity());
         reservation.markReleased();
+        announce(product);
         return true;
     }
 
@@ -95,5 +106,9 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponse getResponse(Long id) {
         return ProductResponse.from(get(id));
+    }
+
+    private void announce(Product product) {
+        events.publishEvent(new StockChanged(product.getId(), product.getStock(), Instant.now()));
     }
 }
