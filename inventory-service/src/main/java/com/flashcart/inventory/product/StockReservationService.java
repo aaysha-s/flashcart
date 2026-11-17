@@ -25,6 +25,10 @@ public class StockReservationService {
         return withRetry(productId, () -> productService.reserveForOrder(orderId, productId, quantity));
     }
 
+    public boolean releaseForOrder(Long orderId, Long productId) {
+        return withRetry(productId, () -> productService.releaseForOrder(orderId, productId));
+    }
+
     private <T> T withRetry(Long productId, Supplier<T> attempt) {
         for (int i = 1; ; i++) {
             try {

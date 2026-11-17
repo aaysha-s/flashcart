@@ -66,6 +66,13 @@ public class OrderReservation {
         return outcome == ReservationOutcome.RESERVED;
     }
 
+    public void markReleased() {
+        if (outcome != ReservationOutcome.RESERVED) {
+            throw new IllegalStateException("Reservation for order " + orderId + " is " + outcome);
+        }
+        this.outcome = ReservationOutcome.RELEASED;
+    }
+
     public Long getOrderId() { return orderId; }
     public Long getProductId() { return productId; }
     public int getQuantity() { return quantity; }

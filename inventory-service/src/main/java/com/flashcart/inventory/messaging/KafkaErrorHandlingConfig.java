@@ -20,6 +20,11 @@ public class KafkaErrorHandlingConfig {
     }
 
     @Bean
+    NewTopic paymentFailedDeadLetterTopic() {
+        return TopicBuilder.name(Topics.PAYMENT_FAILED + ".dlt").partitions(1).replicas(1).build();
+    }
+
+    @Bean
     DefaultErrorHandler kafkaErrorHandler(KafkaTemplate<String, String> kafkaTemplate) {
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
                 (record, ex) -> new TopicPartition(record.topic() + ".dlt", -1));

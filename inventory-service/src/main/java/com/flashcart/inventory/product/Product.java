@@ -57,6 +57,13 @@ public class Product {
         this.stock -= quantity;
     }
 
+    public void release(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+        this.stock += quantity;
+    }
+
     public void setStock(int stock) {
         if (stock < 0) {
             throw new IllegalArgumentException("Stock cannot be negative");

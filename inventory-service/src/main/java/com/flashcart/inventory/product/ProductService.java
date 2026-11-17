@@ -73,6 +73,19 @@ public class ProductService {
                 orderId, productId, quantity, product.getPricePaise() * quantity));
     }
 
+    @CacheEvict(cacheNames = "products", key = "#productId")
+    @Transactional
+    public boolean releaseForOrder(Long orderId, Long productId) {
+        OrderReservation reservation = reservationRepository.findByOrderId(orderId).orElse(null);
+        if (reservation == null || !reservation.isReserved()) {
+            return false; // nothing reserved, or already released: safe to ignore
+        }
+        Product product = get(reservation.getProductId());
+        product.release(reservation.getQuantity());
+        reservation.markReleased();
+        return true;
+    }
+
     @Transactional
     public OrderReservation recordRejection(Long orderId, Long productId, int quantity, String reason) {
         return reservationRepository.save(OrderReservation.rejected(orderId, productId, quantity, reason));

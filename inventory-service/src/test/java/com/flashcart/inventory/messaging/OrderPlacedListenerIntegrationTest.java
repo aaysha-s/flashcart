@@ -60,6 +60,30 @@ class OrderPlacedListenerIntegrationTest {
         assertThat(stockOf(productId)).isEqualTo(2);
     }
 
+    @Test
+    void failedPaymentReleasesStockExactlyOnce() throws Exception {
+        Long productId = productRepository.save(new Product("Refund item", "test", 10000, 5)).getId();
+        long orderId = 900_003L;
+
+        kafkaTemplate.send(Topics.ORDER_PLACED, String.valueOf(productId), orderPlaced(orderId, productId, 2)).get();
+        await().atMost(Duration.ofSeconds(30))
+                .untilAsserted(() -> assertThat(stockOf(productId)).isEqualTo(3));
+
+        String paymentFailed = """
+                {"orderId":%d,"productId":%d,"quantity":2,"reason":"Card declined"}
+                """.formatted(orderId, productId).strip();
+
+        kafkaTemplate.send(Topics.PAYMENT_FAILED, String.valueOf(orderId), paymentFailed).get();
+        await().atMost(Duration.ofSeconds(30))
+                .untilAsserted(() -> assertThat(stockOf(productId)).isEqualTo(5));
+        assertThat(reservationRepository.findByOrderId(orderId).orElseThrow().getOutcome())
+                .isEqualTo(ReservationOutcome.RELEASED);
+
+        kafkaTemplate.send(Topics.PAYMENT_FAILED, String.valueOf(orderId), paymentFailed).get();
+        await().during(Duration.ofSeconds(3)).atMost(Duration.ofSeconds(10))
+                .untilAsserted(() -> assertThat(stockOf(productId)).isEqualTo(5));
+    }
+
     private String orderPlaced(long orderId, Long productId, int quantity) {
         return """
                 {"orderId":%d,"customerId":1,"productId":%d,"quantity":%d}
