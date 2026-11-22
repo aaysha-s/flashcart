@@ -1,0 +1,16 @@
+[
+  { "question": "How long is the warranty on wireless earbuds?", "file": "FlashCart-Warranty-Policy.pdf", "location": "1", "pattern": "12\\s*months" },
+  { "question": "What is the warranty period for a laptop?", "file": "FlashCart-Warranty-Policy.pdf", "location": "1", "pattern": "24\\s*months" },
+  { "question": "How long is a smartphone battery covered?", "file": "FlashCart-Warranty-Policy.pdf", "location": "1", "pattern": "6\\s*months" },
+  { "question": "Is a cracked screen covered by the warranty?", "file": "FlashCart-Warranty-Policy.pdf", "location": "2", "pattern": "not\\s+(be\\s+)?cover|n't\\s+cover|exclud" },
+  { "question": "How long does a warranty repair take after pickup?", "file": "FlashCart-Warranty-Policy.pdf", "location": "2", "pattern": "10\\s*working\\s*days" },
+  { "question": "How long does delivery take to a metro city?", "file": "FlashCart-Shipping-FAQ.pdf", "location": "1", "pattern": "2\\s*(-|\u2013|to)\\s*3" },
+  { "question": "Above what order value is shipping free?", "file": "FlashCart-Shipping-FAQ.pdf", "location": "1", "pattern": "999" },
+  { "question": "When are flash-sale orders shipped?", "file": "FlashCart-Shipping-FAQ.pdf", "location": "2", "pattern": "24\\s*hours" },
+  { "question": "When will I get my refund if I paid by UPI?", "file": "FlashCart-Returns-and-Refunds.docx", "location": "Refunds", "pattern": "2\\s*(-|\u2013|to)\\s*3" },
+  { "question": "How many days do I have to return a product?", "file": "FlashCart-Returns-and-Refunds.docx", "location": "Return window", "pattern": "7\\s*days" },
+  { "question": "My payment failed but money was debited. When do I get it back?", "file": "FlashCart-Returns-and-Refunds.docx", "location": "Failed payments", "pattern": "48\\s*hours" },
+  { "question": "Do you sell gift wrapping?", "answerable": false },
+  { "question": "Do you deliver to Dubai?", "answerable": false },
+  { "question": "Who is the CEO of FlashCart?", "answerable": false }
+]

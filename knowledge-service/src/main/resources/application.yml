@@ -42,7 +42,7 @@ flashcart:
 
   ask:
     top-k: 5
-    similarity-threshold: ${ASK_SIMILARITY_THRESHOLD:0.55}
+    similarity-threshold: ${ASK_SIMILARITY_THRESHOLD:0.60}
 
 management:
   endpoints:
