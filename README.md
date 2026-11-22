@@ -69,6 +69,24 @@ flowchart LR
 
 ![AI assistant](docs/images/ai-assistant.png)
 
+### Policy Q&A with citations (RAG)
+
+A separate **knowledge-service** answers questions about FlashCart's policies from uploaded PDF and DOCX documents.
+
+- **Parsing:** Apache PDFBox (text per page) and Apache POI (DOCX text per heading, tables kept as rows); file type checked by magic bytes, not extension
+- **Chunking:** ~800-character, sentence-aware chunks with 150-character overlap; chunks never cross a page or section, so every citation is exact
+- **Ingestion:** SHA-256 de-duplication; document row and vectors written in one transaction; embeddings with Gemini (768-dim) in pgvector (HNSW, cosine)
+- **Answering:** retrieve-first RAG; top-5 chunks above a 0.60 similarity threshold are given to Gemini as numbered sources; the answer cites them as [1], [2] and the API returns only the cited sources with file, page or section, snippet and score
+- **No hallucination by design:** if nothing passes the threshold, it refuses without calling the model; if the sources don't answer the question, the prompt makes it refuse
+- **Tested without an API key:** a deterministic fake embedding model plus real pgvector in Testcontainers; a mocked chat model proves unanswerable questions never reach the LLM
+- **Evaluated:** a 14-question golden set (11 answerable, 3 out of scope): **11/11 retrieval hit rate, 11/11 correct answers, 3/3 refusals**
+
+| Endpoint | Access |
+| --- | --- |
+| `POST /api/docs` (multipart `file`) | ADMIN |
+| `GET /api/docs` | logged-in user |
+| `POST /api/docs/ask` `{ "question": "..." }` | logged-in user |
+
 **Observability**
 - Prometheus metrics and Grafana dashboards **provisioned as code**
 - Distributed tracing with OpenTelemetry + Jaeger, with **trace context carried through Kafka via the outbox**
