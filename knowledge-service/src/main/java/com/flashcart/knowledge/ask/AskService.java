@@ -83,7 +83,7 @@ public class AskService {
     }
 
     /** Return only the sources the answer actually cites; fall back to all of them if it cited none. */
-    private static List<SourceRef> citedOnly(String answer, List<SourceRef> sources) {
+    static List<SourceRef> citedOnly(String answer, List<SourceRef> sources)  {
         Set<Integer> cited = new LinkedHashSet<>();
         Matcher matcher = CITATION.matcher(answer);
         while (matcher.find()) {

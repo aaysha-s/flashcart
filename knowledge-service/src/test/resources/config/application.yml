@@ -1,0 +1,12 @@
+flashcart:
+  jwt:
+    secret: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+  ask:
+    similarity-threshold: 0.2
+spring:
+  ai:
+    google:
+      genai:
+        api-key: test-key-not-used
+        embedding:
+          api-key: test-key-not-used
