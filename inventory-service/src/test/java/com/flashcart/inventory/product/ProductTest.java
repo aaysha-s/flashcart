@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.time.Instant;
 
 class ProductTest {
 
@@ -54,5 +55,15 @@ class ProductTest {
 
         assertThatThrownBy(() -> product.setStock(-1))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void productIsNotOnSaleBeforeItsStartTime() {
+        Instant start = Instant.parse("2026-12-01T10:00:00Z");
+        Product product = new Product("Phone", "test", 1000, 5, start);
+
+        assertThat(product.isOnSale(start.minusSeconds(1))).isFalse();
+        assertThat(product.isOnSale(start)).isTrue();
+        assertThat(new Product("Cable", "test", 100, 5).isOnSale(start)).isTrue();
     }
 }

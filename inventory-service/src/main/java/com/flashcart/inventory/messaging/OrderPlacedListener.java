@@ -13,6 +13,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.json.JsonMapper;
+import com.flashcart.inventory.product.SaleNotStartedException;
 
 @Component
 public class OrderPlacedListener {
@@ -59,7 +60,7 @@ public class OrderPlacedListener {
             log.info("Reserved stock for order {}, total {} paise",
                     event.orderId(), reservation.getTotalPaise());
             return reservation;
-        } catch (InsufficientStockException | ProductNotFoundException | StockConflictException e) {
+        } catch (InsufficientStockException | ProductNotFoundException | StockConflictException | SaleNotStartedException e) {
             log.info("Rejected order {}: {}", event.orderId(), e.getMessage());
             return productService.recordRejection(
                     event.orderId(), event.productId(), event.quantity(), e.getMessage());

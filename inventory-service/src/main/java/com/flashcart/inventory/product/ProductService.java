@@ -44,8 +44,10 @@ public class ProductService {
 
     @Transactional
     public Product create(CreateProductRequest request) {
+
         Product product = productRepository.save(new Product(request.name().trim(), request.description(),
-                request.pricePaise(), request.stock()));
+                request.pricePaise(), request.stock(), request.saleStartsAt()));
+
         try {
             searchService.index(product);
         } catch (RuntimeException e) {
@@ -68,6 +70,7 @@ public class ProductService {
     @Transactional
     public Product reserve(Long id, int quantity) {
         Product product = get(id);
+        requireOnSale(product);
         product.reserve(quantity);
         announce(product);
         return product;
@@ -77,6 +80,7 @@ public class ProductService {
     @Transactional
     public OrderReservation reserveForOrder(Long orderId, Long productId, int quantity) {
         Product product = get(productId);
+        requireOnSale(product);
         product.reserve(quantity);
         announce(product);
         return reservationRepository.save(OrderReservation.reserved(
@@ -110,5 +114,11 @@ public class ProductService {
 
     private void announce(Product product) {
         events.publishEvent(new StockChanged(product.getId(), product.getStock(), Instant.now()));
+    }
+
+    private static void requireOnSale(Product product) {
+        if (!product.isOnSale(Instant.now())) {
+            throw new SaleNotStartedException(product.getId(), product.getSaleStartsAt());
+        }
     }
 }

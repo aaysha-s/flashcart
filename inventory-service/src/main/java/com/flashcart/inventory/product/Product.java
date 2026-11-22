@@ -31,6 +31,9 @@ public class Product {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "sale_starts_at")
+    private Instant saleStartsAt;
+
     protected Product() {
         // required by JPA
     }
@@ -40,6 +43,11 @@ public class Product {
         this.description = description;
         this.pricePaise = pricePaise;
         this.stock = stock;
+    }
+
+    public Product(String name, String description, long pricePaise, int stock, Instant saleStartsAt) {
+        this(name, description, pricePaise, stock);
+        this.saleStartsAt = saleStartsAt;
     }
 
     @PrePersist
@@ -78,4 +86,9 @@ public class Product {
     public int getStock() { return stock; }
     public long getVersion() { return version; }
     public Instant getCreatedAt() { return createdAt; }
+    public boolean isOnSale(Instant now) {
+        return saleStartsAt == null || !now.isBefore(saleStartsAt);
+    }
+
+    public Instant getSaleStartsAt() { return saleStartsAt; }
 }

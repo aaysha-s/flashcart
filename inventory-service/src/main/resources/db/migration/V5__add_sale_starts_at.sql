@@ -1,0 +1,1 @@
+ALTER TABLE products ADD COLUMN sale_starts_at TIMESTAMPTZ;
