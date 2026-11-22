@@ -1,34 +1,51 @@
+import { useState } from 'react'
 import { LoginForm } from './auth/LoginForm'
 import { useAuth } from './auth/useAuth'
+import { OrderHistory } from './orders/OrderHistory'
 import { ProductList } from './products/ProductList'
 
-export default function App() {
-  const { user, loading, logout } = useAuth()
+type View = 'shop' | 'orders'
 
-  if (loading) {
-    return <p className="center muted">Loading…</p>
-  }
-  if (!user) {
+export default function App() {
+    const { user, loading, logout } = useAuth()
+    const [view, setView] = useState<View>('shop')
+
+    if (loading) {
+        return <p className="center muted">Loading…</p>
+    }
+    if (!user) {
+        return (
+            <main className="center">
+                <LoginForm />
+            </main>
+        )
+    }
     return (
-        <main className="center">
-          <LoginForm />
-        </main>
-    )
-  }
-  return (
-      <>
-        <header className="topbar">
-          <strong>FlashCart</strong>
-          <span className="muted">
+        <>
+            <header className="topbar">
+                <strong>FlashCart</strong>
+                <nav className="tabs">
+                    <button className={view === 'shop' ? 'active' : ''} onClick={() => setView('shop')}>
+                        Shop
+                    </button>
+                    <button className={view === 'orders' ? 'active' : ''} onClick={() => setView('orders')}>
+                        My orders
+                    </button>
+                </nav>
+                <span className="muted who">
           {user.email} · {user.role}
         </span>
-          <button className="link" onClick={logout}>
-            Log out
-          </button>
-        </header>
-        <main className="page">
-          <ProductList/>
-        </main>
-      </>
-  )
+                <button className="link" onClick={logout}>
+                    Log out
+                </button>
+            </header>
+            <main className="page">
+                {/* The shop stays mounted, so the cart and the live connection survive a tab switch */}
+                <div hidden={view !== 'shop'}>
+                    <ProductList />
+                </div>
+                {view === 'orders' && <OrderHistory />}
+            </main>
+        </>
+    )
 }
