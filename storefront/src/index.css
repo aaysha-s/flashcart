@@ -114,3 +114,14 @@ button:disabled { opacity: 0.6; cursor: default; }
 }
 .admin-form input:first-of-type { width: 200px; }
 .admin-form label { display: flex; gap: 6px; align-items: center; font-size: 14px; }
+
+.live-status { margin: 0 0 12px; font-size: 13px; }
+.live-status.live { color: #2b8a3e; }
+.live-status.connecting { color: var(--muted); }
+.live-status.offline { color: var(--danger); }
+
+.flash { animation: flash 0.9s ease-out; }
+@keyframes flash {
+  from { box-shadow: 0 0 0 4px rgba(217, 72, 15, 0.45); }
+  to { box-shadow: 0 0 0 0 rgba(217, 72, 15, 0); }
+}

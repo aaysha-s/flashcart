@@ -4,12 +4,14 @@ import { useAuth } from '../auth/useAuth'
 import { formatCountdown, formatRupees } from './format'
 import type { Page, Product } from './types'
 import { useNow } from './useNow'
+import { useLiveStock, type LiveStock } from '../live/useLiveStock'
 
 export function ProductList() {
     const { user } = useAuth()
     const [products, setProducts] = useState<Product[] | null>(null)
     const [error, setError] = useState<string | null>(null)
     const now = useNow()
+    const { stocks, status } = useLiveStock()
 
     const load = useCallback(() => {
         api<Page<Product>>('/api/products?size=50&sort=id,desc')
@@ -31,19 +33,23 @@ export function ProductList() {
     return (
         <>
             {user?.role === 'ADMIN' && <NewSaleForm onCreated={load} />}
+            <p className={`live-status ${status}`}>
+                ● {status === 'live' ? 'Live stock' : status === 'connecting' ? 'Connecting…' : 'Offline, reconnecting…'}
+            </p>
             <div className="grid">
                 {products.map((product) => (
-                    <ProductCard key={product.id} product={product} now={now} />
+                    <ProductCard key={product.id} product={product} live={stocks[product.id]} now={now} />
                 ))}
             </div>
         </>
     )
 }
 
-function ProductCard({ product, now }: { product: Product; now: number }) {
+function ProductCard({ product, live, now }: { product: Product; live?: LiveStock; now: number }) {
+    const stock = live?.stock ?? product.stock
     const startsAt = product.saleStartsAt ? Date.parse(product.saleStartsAt) : null
     const upcoming = startsAt !== null && startsAt > now
-    const soldOut = product.stock === 0
+    const soldOut = stock === 0
 
     return (
         <article className="card product">
@@ -55,9 +61,9 @@ function ProductCard({ product, now }: { product: Product; now: number }) {
                     Sale starts in <strong>{formatCountdown(startsAt - now)}</strong>
                 </p>
             ) : soldOut ? (
-                <p className="badge soldout">Sold out</p>
+                <p key={`out-${live?.changedAtEpochMs}`} className="badge soldout flash">Sold out</p>
             ) : (
-                <p className="badge live">{product.stock} left</p>
+                <p key={`left-${live?.changedAtEpochMs}`} className="badge live flash">{stock} left</p>
             )}
             <button className="buy" disabled={upcoming || soldOut} title="Checkout arrives in Step 14.5">
                 {upcoming ? 'Not yet' : soldOut ? 'Sold out' : 'Buy now'}
