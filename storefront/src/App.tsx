@@ -1,5 +1,6 @@
 import { LoginForm } from './auth/LoginForm'
 import { useAuth } from './auth/useAuth'
+import { ProductList } from './products/ProductList'
 
 export default function App() {
   const { user, loading, logout } = useAuth()
@@ -26,7 +27,7 @@ export default function App() {
           </button>
         </header>
         <main className="page">
-          <p>You're logged in. Products arrive in Step 14.3.</p>
+          <ProductList/>
         </main>
       </>
   )

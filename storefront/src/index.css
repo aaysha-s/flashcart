@@ -71,3 +71,46 @@ button:disabled { opacity: 0.6; cursor: default; }
   border-bottom: 1px solid var(--border);
 }
 .topbar .link { margin-left: auto; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.product { display: grid; gap: 8px; align-content: start; }
+.product h3 { margin: 0; font-size: 17px; }
+.product .desc { margin: 0; font-size: 14px; }
+.price { margin: 0; font-size: 20px; font-weight: 700; }
+
+.badge { margin: 0; font-size: 14px; padding: 4px 10px; border-radius: 999px; justify-self: start; }
+.badge.live { background: rgba(43, 138, 62, 0.15); color: #2b8a3e; }
+.badge.upcoming { background: rgba(217, 72, 15, 0.12); color: var(--accent); }
+.badge.soldout { background: rgba(201, 42, 42, 0.12); color: var(--danger); }
+
+.buy {
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.admin-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px;
+}
+.admin-form input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  width: 110px;
+}
+.admin-form input:first-of-type { width: 200px; }
+.admin-form label { display: flex; gap: 6px; align-items: center; font-size: 14px; }
