@@ -40,6 +40,10 @@ flashcart:
     secret: ${JWT_SECRET}
     issuer: flashcart-auth
 
+  ask:
+    top-k: 5
+    similarity-threshold: ${ASK_SIMILARITY_THRESHOLD:0.55}
+
 management:
   endpoints:
     web:
