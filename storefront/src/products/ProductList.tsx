@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { api } from '../api/client'
 import { useAuth } from '../auth/useAuth'
+import { CartPanel } from '../cart/CartPanel'
+import { MAX_PER_ORDER, useCart } from '../cart/useCart'
+import { useLiveStock, type LiveStock } from '../live/useLiveStock'
 import { formatCountdown, formatRupees } from './format'
 import type { Page, Product } from './types'
 import { useNow } from './useNow'
-import { useLiveStock, type LiveStock } from '../live/useLiveStock'
 
 export function ProductList() {
     const { user } = useAuth()
@@ -12,6 +14,7 @@ export function ProductList() {
     const [error, setError] = useState<string | null>(null)
     const now = useNow()
     const { stocks, status } = useLiveStock()
+    const cart = useCart()
 
     const load = useCallback(() => {
         api<Page<Product>>('/api/products?size=50&sort=id,desc')
@@ -30,26 +33,47 @@ export function ProductList() {
         return <p className="muted">Loading products…</p>
     }
 
+    const stockOf = (product: Product) => stocks[product.id]?.stock ?? product.stock
+
     return (
         <>
             {user?.role === 'ADMIN' && <NewSaleForm onCreated={load} />}
             <p className={`live-status ${status}`}>
                 ● {status === 'live' ? 'Live stock' : status === 'connecting' ? 'Connecting…' : 'Offline, reconnecting…'}
             </p>
-            <div className="grid">
-                {products.map((product) => (
-                    <ProductCard key={product.id} product={product} live={stocks[product.id]} now={now} />
-                ))}
+            <div className="shop">
+                <div className="grid">
+                    {products.map((product) => (
+                        <ProductCard
+                            key={product.id}
+                            product={product}
+                            live={stocks[product.id]}
+                            now={now}
+                            inCart={cart.items[product.id] ?? 0}
+                            onAdd={() => cart.add(product.id, stockOf(product))}
+                        />
+                    ))}
+                </div>
+                <CartPanel products={products} cart={cart} stockOf={stockOf} />
             </div>
         </>
     )
 }
 
-function ProductCard({ product, live, now }: { product: Product; live?: LiveStock; now: number }) {
+interface CardProps {
+    product: Product
+    live?: LiveStock
+    now: number
+    inCart: number
+    onAdd: () => void
+}
+
+function ProductCard({ product, live, now, inCart, onAdd }: CardProps) {
     const stock = live?.stock ?? product.stock
     const startsAt = product.saleStartsAt ? Date.parse(product.saleStartsAt) : null
     const upcoming = startsAt !== null && startsAt > now
     const soldOut = stock === 0
+    const atLimit = inCart >= Math.min(MAX_PER_ORDER, stock)
 
     return (
         <article className="card product">
@@ -65,8 +89,8 @@ function ProductCard({ product, live, now }: { product: Product; live?: LiveStoc
             ) : (
                 <p key={`left-${live?.changedAtEpochMs}`} className="badge live flash">{stock} left</p>
             )}
-            <button className="buy" disabled={upcoming || soldOut} title="Checkout arrives in Step 14.5">
-                {upcoming ? 'Not yet' : soldOut ? 'Sold out' : 'Buy now'}
+            <button className="buy" disabled={upcoming || soldOut || atLimit} onClick={onAdd}>
+                {upcoming ? 'Not yet' : soldOut ? 'Sold out' : inCart > 0 ? `In cart (${inCart}) · add one` : 'Add to cart'}
             </button>
         </article>
     )

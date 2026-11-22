@@ -125,3 +125,44 @@ button:disabled { opacity: 0.6; cursor: default; }
   from { box-shadow: 0 0 0 4px rgba(217, 72, 15, 0.45); }
   to { box-shadow: 0 0 0 0 rgba(217, 72, 15, 0); }
 }
+
+.shop {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .shop { grid-template-columns: 1fr; }
+}
+
+.cart { position: sticky; top: 16px; display: grid; gap: 12px; }
+.cart h2 { margin: 0; font-size: 18px; }
+.cart h3 { margin: 8px 0 0; font-size: 15px; }
+.lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.lines li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; font-size: 14px; }
+.qty { display: inline-flex; gap: 8px; align-items: center; }
+.qty button {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+.total { margin: 0; display: flex; justify-content: space-between; }
+
+.tracking { display: grid; gap: 8px; }
+.order-status {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+.order-status small { color: var(--muted); }
+.order-status.pending strong,
+.order-status.awaiting_payment strong { color: var(--accent); }
+.order-status.confirmed strong { color: #2b8a3e; }
+.order-status.cancelled strong { color: var(--danger); }
