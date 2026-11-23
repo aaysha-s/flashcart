@@ -141,6 +141,17 @@ services:
         condition: service_healthy
     mem_limit: 512m
 
+  storefront:
+    build: ./storefront
+    image: flashcart/storefront:local
+    profiles: [ app ]
+    ports:
+      - "8090:8080"
+    depends_on:
+      - gateway
+      - live-service
+    mem_limit: 64m
+
   gateway:
     build: ./gateway
     image: flashcart/gateway:local
