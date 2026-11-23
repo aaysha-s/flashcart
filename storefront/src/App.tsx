@@ -4,9 +4,9 @@ import { LoginForm } from './auth/LoginForm'
 import { useAuth } from './auth/useAuth'
 import { OrderHistory } from './orders/OrderHistory'
 import { ProductList } from './products/ProductList'
+import { AdminDashboard } from './admin/AdminDashboard'
 
-type View = 'shop' | 'orders'
-
+type View = 'shop' | 'orders' | 'dashboard'
 export default function App() {
     const { user, loading, logout } = useAuth()
     const [view, setView] = useState<View>('shop')
@@ -32,6 +32,11 @@ export default function App() {
                     <button className={view === 'orders' ? 'active' : ''} onClick={() => setView('orders')}>
                         My orders
                     </button>
+                    {user.role === 'ADMIN' && (
+                        <button className={view === 'dashboard' ? 'active' : ''} onClick={() => setView('dashboard')}>
+                            Dashboard
+                        </button>
+                    )}
                 </nav>
                 <span className="muted who">
           {user.email} · {user.role}
@@ -46,6 +51,7 @@ export default function App() {
                     <ProductList />
                 </div>
                 {view === 'orders' && <OrderHistory />}
+                {view === 'dashboard' && user.role === 'ADMIN' && <AdminDashboard />}
             </main>
             <AssistantPanel />
         </>

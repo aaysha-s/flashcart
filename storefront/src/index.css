@@ -283,3 +283,32 @@ button:disabled { opacity: 0.6; cursor: default; }
   color: var(--accent-text);
   font-weight: 600;
 }
+
+.dashboard { display: grid; gap: 16px; }
+.dashboard h2 { margin: 0; font-size: 20px; }
+.dashboard h3 { margin: 0 0 10px; font-size: 15px; }
+.small { font-size: 12px; margin: 0; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.tile { display: grid; gap: 4px; padding: 14px 16px; }
+.tile-label { font-size: 13px; color: var(--muted); }
+.tile strong { font-size: 24px; font-variant-numeric: tabular-nums; }
+.tile small { font-size: 12px; }
+.tile.bad strong { color: var(--danger); }
+
+.chart-scroll { overflow-x: auto; }
+.chart-card svg { width: 100%; min-width: 420px; height: auto; display: block; }
+.bar.placed { fill: var(--accent); }
+.bar.failed { fill: var(--danger); }
+.axis { stroke: var(--border); }
+.grid { stroke: var(--border); stroke-dasharray: 3 3; }
+.tick { fill: var(--muted); font-size: 11px; }
+.legend { margin: 8px 0 0; font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.key { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.key.placed { background: var(--accent); }
+.key.failed { background: var(--danger); margin-left: 12px; }
+
+.soldout-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.soldout-table th, .soldout-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+.soldout-table th { color: var(--muted); font-size: 13px; }
+.soldout-table .num { text-align: right; font-variant-numeric: tabular-nums; }
