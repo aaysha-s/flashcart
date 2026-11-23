@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flashcart
+  namespace: flashcart
+  annotations:
+    # keep WebSocket connections open for up to an hour
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: { name: gateway, port: { number: 8080 } }
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service: { name: live-service, port: { number: 8085 } }
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: storefront, port: { number: 8080 } }
