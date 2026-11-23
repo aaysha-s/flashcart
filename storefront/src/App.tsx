@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AssistantPanel } from './assist/AssistantPanel'
 import { LoginForm } from './auth/LoginForm'
 import { useAuth } from './auth/useAuth'
 import { OrderHistory } from './orders/OrderHistory'
@@ -46,6 +47,7 @@ export default function App() {
                 </div>
                 {view === 'orders' && <OrderHistory />}
             </main>
+            <AssistantPanel />
         </>
     )
 }
