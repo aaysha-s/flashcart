@@ -25,6 +25,10 @@ spring:
               uri: ${KNOWLEDGE_SERVICE_URL:http://localhost:8087}
               predicates:
                 - Path=/api/docs/**
+            - id: live-service
+              uri: ${LIVE_SERVICE_URL:http://localhost:8085}
+              predicates:
+                - Path=/api/live/**
 management:
   endpoints:
     web:
