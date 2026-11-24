@@ -39,7 +39,7 @@ services:
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m"
     healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      test: ["CMD-SHELL", "KAFKA_HEAP_OPTS='-Xmx64m' /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
       interval: 15s
       timeout: 10s
       retries: 10
