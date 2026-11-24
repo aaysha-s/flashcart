@@ -10,6 +10,8 @@
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--text);
   background: var(--bg);
+  --accent: #c2410c;
+  --accent-fg: #c2410c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,6 +21,8 @@
     --text: #f2f2f2;
     --muted: #a1a1a8;
     --border: #333338;
+    --accent-fg: #fb923c;
+    --danger: #ff6b6b;
   }
 }
 
@@ -40,7 +44,7 @@ input { font: inherit; }
 }
 
 .auth { width: min(380px, 100%); display: grid; gap: 14px; }
-.auth h1 { margin: 0; color: var(--accent); }
+.auth h1 { margin: 0; color: var(--accent-fg); }
 .auth p { margin: 0; }
 .auth label { display: grid; gap: 6px; font-size: 14px; }
 .auth input {
@@ -60,7 +64,7 @@ button[type='submit'] {
   font-weight: 600;
 }
 button:disabled { opacity: 0.6; cursor: default; }
-.link { background: none; border: 0; color: var(--accent); padding: 0; }
+.link { background: none; border: 0; color: var(--accent-fg); padding: 0; }
 
 .topbar {
   display: flex;
@@ -84,7 +88,7 @@ button:disabled { opacity: 0.6; cursor: default; }
 
 .badge { margin: 0; font-size: 14px; padding: 4px 10px; border-radius: 999px; justify-self: start; }
 .badge.live { background: rgba(43, 138, 62, 0.15); color: #2b8a3e; }
-.badge.upcoming { background: rgba(217, 72, 15, 0.12); color: var(--accent); }
+.badge.upcoming { background: rgba(217, 72, 15, 0.12); color: var(--accent-fg); }
 .badge.soldout { background: rgba(201, 42, 42, 0.12); color: var(--danger); }
 
 .buy {
@@ -163,7 +167,7 @@ button:disabled { opacity: 0.6; cursor: default; }
 }
 .order-status small { color: var(--muted); }
 .order-status.pending strong,
-.order-status.awaiting_payment strong { color: var(--accent); }
+.order-status.awaiting_payment strong { color: var(--accent-fg); }
 .order-status.confirmed strong { color: #2b8a3e; }
 .order-status.cancelled strong { color: var(--danger); }
 
@@ -192,7 +196,7 @@ button:disabled { opacity: 0.6; cursor: default; }
 .reason { display: block; margin-top: 4px; color: var(--muted); }
 
 .pill { font-size: 13px; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
-.pill.pending, .pill.awaiting_payment { background: rgba(217, 72, 15, 0.12); color: var(--accent); }
+.pill.pending, .pill.awaiting_payment { background: rgba(217, 72, 15, 0.12); color: var(--accent-fg); }
 .pill.confirmed { background: rgba(43, 138, 62, 0.15); color: #2b8a3e; }
 .pill.cancelled { background: rgba(201, 42, 42, 0.12); color: var(--danger); }
 
