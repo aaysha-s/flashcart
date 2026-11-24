@@ -1,5 +1,5 @@
 # ---- Stage 1: build the JAR ----
-FROM eclipse-temurin:21-jdk AS build
+FROM --platform=$BUILDPLATFORM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 COPY mvnw pom.xml ./
