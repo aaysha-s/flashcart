@@ -51,6 +51,7 @@ export function ProductList() {
                             now={now}
                             inCart={cart.items[product.id] ?? 0}
                             onAdd={() => cart.add(product.id, stockOf(product))}
+                            isAdmin={user?.role === 'ADMIN'}
                         />
                     ))}
                 </div>
@@ -66,9 +67,10 @@ interface CardProps {
     now: number
     inCart: number
     onAdd: () => void
+    isAdmin: boolean
 }
 
-function ProductCard({ product, live, now, inCart, onAdd }: CardProps) {
+function ProductCard({ product, live, now, inCart, onAdd, isAdmin }: CardProps) {
     const stock = live?.stock ?? product.stock
     const startsAt = product.saleStartsAt ? Date.parse(product.saleStartsAt) : null
     const upcoming = startsAt !== null && startsAt > now
@@ -92,7 +94,40 @@ function ProductCard({ product, live, now, inCart, onAdd }: CardProps) {
             <button className="buy" disabled={upcoming || soldOut || atLimit} onClick={onAdd}>
                 {upcoming ? 'Not yet' : soldOut ? 'Sold out' : inCart > 0 ? `In cart (${inCart}) · add one` : 'Add to cart'}
             </button>
+            {isAdmin && <RestockForm productId={product.id} />}
         </article>
+    )
+}
+
+function RestockForm({ productId }: { productId: number }) {
+    const [stock, setStock] = useState('20')
+    const [state, setState] = useState<'idle' | 'saving' | 'error'>('idle')
+
+    async function submit(event: FormEvent) {
+        event.preventDefault()
+        setState('saving')
+        try {
+            // Sets the absolute stock level; the new value reaches every viewer over the live feed
+            await api<Product>(`/api/products/${productId}/stock`, {
+                method: 'PATCH',
+                body: JSON.stringify({ stock: Number(stock) }),
+            })
+            setState('idle')
+        } catch {
+            setState('error')
+        }
+    }
+
+    return (
+        <form className="restock" onSubmit={submit}>
+            <label>
+                Set stock to <input type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} />
+            </label>
+            <button type="submit" disabled={state === 'saving'}>
+                {state === 'saving' ? 'Saving…' : 'Restock'}
+            </button>
+            {state === 'error' && <span className="error">Could not update stock</span>}
+        </form>
     )
 }
 

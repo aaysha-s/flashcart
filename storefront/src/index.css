@@ -117,6 +117,11 @@ button:disabled { opacity: 0.6; cursor: default; }
   width: 110px;
 }
 .admin-form input:first-of-type { width: 200px; }
+.restock { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 10px; border-top: 1px dashed var(--border); font-size: 14px; }
+.restock label { display: flex; gap: 6px; align-items: center; color: var(--muted); }
+.restock input { width: 72px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: inherit; }
+.restock button { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--accent); background: transparent; color: var(--accent-fg); cursor: pointer; font: inherit; }
+.restock button:disabled { opacity: .6; cursor: default; }
 .admin-form label { display: flex; gap: 6px; align-items: center; font-size: 14px; }
 
 .live-status { margin: 0 0 12px; font-size: 13px; }
