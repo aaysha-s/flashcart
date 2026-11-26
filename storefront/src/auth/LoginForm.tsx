@@ -31,7 +31,7 @@ export function LoginForm() {
 
     return (
         <form className="card auth" onSubmit={submit}>
-            <h1>FlashCart</h1>
+            <h1 className="brand"><span className="bolt" aria-hidden="true">⚡</span>FlashCart</h1>
             <p className="muted">{mode === 'login' ? 'Log in to join the sale' : 'Create your account'}</p>
             <label>
                 Email

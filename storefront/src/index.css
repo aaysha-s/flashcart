@@ -321,3 +321,77 @@ button:disabled { opacity: 0.6; cursor: default; }
 .soldout-table th, .soldout-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
 .soldout-table th { color: var(--muted); font-size: 13px; }
 .soldout-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+/* ---------- Lively storefront ---------- */
+:root {
+  --t0: #fff1e6; --t1: #e8f4ff; --t2: #edfbe9; --t3: #f6edff; --t4: #fff8db; --t5: #ffe9ef;
+  --ok: #2b8a3e;
+  --shadow: 0 1px 2px rgba(20, 20, 30, 0.06), 0 8px 24px rgba(20, 20, 30, 0.06);
+  --shadow-hover: 0 2px 4px rgba(20, 20, 30, 0.08), 0 14px 32px rgba(20, 20, 30, 0.12);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --t0: #3a2516; --t1: #172b3d; --t2: #1b3320; --t3: #2b1f3d; --t4: #3a3214; --t5: #3d1c26;
+    --ok: #51cf66;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.45);
+  }
+}
+
+.topbar { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); background: color-mix(in srgb, var(--card) 88%, transparent); }
+.brand { display: inline-flex; align-items: center; gap: 6px; font-size: 18px; letter-spacing: -0.01em; }
+.bolt {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 8px;
+  background: var(--accent); font-size: 16px; line-height: 1;
+}
+.auth h1.brand { font-size: 28px; gap: 10px; }
+.auth h1.brand .bolt { width: 40px; height: 40px; border-radius: 12px; font-size: 22px; }
+
+.shop-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin: 4px 0 18px; }
+.shop-head h1 { margin: 0 0 4px; font-size: clamp(24px, 4vw, 32px); letter-spacing: -0.02em; }
+.shop-head p { margin: 0; }
+.live-status {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--card);
+  font-size: 13px; font-weight: 600;
+}
+.live-status.live { color: var(--ok); }
+.live-status .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+.product.card { padding: 14px 14px 18px; box-shadow: var(--shadow); transition: transform .18s ease, box-shadow .18s ease; }
+.product.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.product > :not(.thumb) { margin-left: 6px; margin-right: 6px; }
+
+.thumb { position: relative; display: grid; place-items: center; height: 132px; border-radius: 10px; margin-bottom: 6px; overflow: hidden; }
+.thumb .icon { font-size: 56px; line-height: 1; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.12)); transition: transform .25s ease; }
+.product:hover .thumb .icon { transform: scale(1.08) rotate(-4deg); }
+.tint-0 { background: var(--t0); } .tint-1 { background: var(--t1); } .tint-2 { background: var(--t2); }
+.tint-3 { background: var(--t3); } .tint-4 { background: var(--t4); } .tint-5 { background: var(--t5); }
+.ribbon {
+  position: absolute; top: 10px; left: 10px; padding: 3px 10px; border-radius: 999px;
+  background: var(--accent); color: var(--accent-text); font-size: 12px; font-weight: 700;
+}
+.is-soldout .thumb { filter: grayscale(0.9); opacity: 0.6; }
+.is-soldout .price { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+.badge { font-weight: 600; }
+.badge.low { background: rgba(217, 72, 15, 0.14); color: var(--accent-fg); }
+.buy { transition: transform .08s ease, filter .15s ease; }
+.buy:not(:disabled):hover { filter: brightness(1.08); }
+.buy:not(:disabled):active, button[type='submit']:not(:disabled):active { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .live-status.live .dot { animation: pulse 1.8s ease-out infinite; }
+  .badge.low { animation: nudge 2.4s ease-in-out infinite; }
+  .ribbon { animation: pop .35s ease-out; }
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes nudge { 0%, 90%, 100% { transform: none; } 94% { transform: scale(1.06); } }
+@keyframes pop { from { transform: scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .product.card, .thumb .icon, .buy { transition: none; }
+  .product.card:hover, .product:hover .thumb .icon { transform: none; }
+}

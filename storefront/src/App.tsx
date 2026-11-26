@@ -24,7 +24,7 @@ export default function App() {
     return (
         <>
             <header className="topbar">
-                <strong>FlashCart</strong>
+                <strong className="brand"><span className="bolt" aria-hidden="true">⚡</span>FlashCart</strong>
                 <nav className="tabs">
                     <button className={view === 'shop' ? 'active' : ''} onClick={() => setView('shop')}>
                         Shop

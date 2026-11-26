@@ -7,6 +7,7 @@ import { useLiveStock, type LiveStock } from '../live/useLiveStock'
 import { formatCountdown, formatRupees } from './format'
 import type { Page, Product } from './types'
 import { useNow } from './useNow'
+import { productVisual } from './visual'
 
 export function ProductList() {
     const { user } = useAuth()
@@ -38,9 +39,16 @@ export function ProductList() {
     return (
         <>
             {user?.role === 'ADMIN' && <NewSaleForm onCreated={load} />}
-            <p className={`live-status ${status}`}>
-                ● {status === 'live' ? 'Live stock' : status === 'connecting' ? 'Connecting…' : 'Offline, reconnecting…'}
-            </p>
+            <div className="shop-head">
+                <div>
+                    <h1>Today's flash sale</h1>
+                    <p className="muted">{products.length} deals · stock updates live as people buy</p>
+                </div>
+                <p className={`live-status ${status}`}>
+                    <span className="dot" aria-hidden="true" />
+                    {status === 'live' ? 'Live' : status === 'connecting' ? 'Connecting…' : 'Offline, reconnecting…'}
+                </p>
+            </div>
             <div className="shop">
                 <div className="grid">
                     {products.map((product) => (
@@ -76,9 +84,15 @@ function ProductCard({ product, live, now, inCart, onAdd, isAdmin }: CardProps) 
     const upcoming = startsAt !== null && startsAt > now
     const soldOut = stock === 0
     const atLimit = inCart >= Math.min(MAX_PER_ORDER, stock)
+    const lowStock = !soldOut && stock <= 5
+    const { icon, tint } = productVisual(product.name, product.id)
 
     return (
-        <article className="card product">
+        <article className={`card product${soldOut ? ' is-soldout' : ''}`}>
+            <div className={`thumb tint-${tint}`} aria-hidden="true">
+                <span className="icon">{icon}</span>
+                {lowStock && !upcoming && <span className="ribbon">Almost gone</span>}
+            </div>
             <h3>{product.name}</h3>
             {product.description && <p className="muted desc">{product.description}</p>}
             <p className="price">{formatRupees(product.pricePaise)}</p>
@@ -89,7 +103,9 @@ function ProductCard({ product, live, now, inCart, onAdd, isAdmin }: CardProps) 
             ) : soldOut ? (
                 <p key={`out-${live?.changedAtEpochMs}`} className="badge soldout flash">Sold out</p>
             ) : (
-                <p key={`left-${live?.changedAtEpochMs}`} className="badge live flash">{stock} left</p>
+                <p key={`left-${live?.changedAtEpochMs}`} className={`badge ${lowStock ? 'low' : 'live'} flash`}>
+                    {lowStock ? `Only ${stock} left` : `${stock} left`}
+                </p>
             )}
             <button className="buy" disabled={upcoming || soldOut || atLimit} onClick={onAdd}>
                 {upcoming ? 'Not yet' : soldOut ? 'Sold out' : inCart > 0 ? `In cart (${inCart}) · add one` : 'Add to cart'}
