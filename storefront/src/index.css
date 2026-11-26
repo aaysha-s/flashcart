@@ -200,7 +200,9 @@ button:disabled { opacity: 0.6; cursor: default; }
 .tabs button.active { background: var(--bg); color: var(--text); font-weight: 600; }
 .who { margin-left: auto; }
 .topbar .link { margin-left: 0; }
-@media (max-width: 640px) {
+/* Keep every top-bar label on one line; drop the email when space runs short */
+.tabs button, .topbar .link, .brand { white-space: nowrap; }
+@media (max-width: 1000px) {
   .who { display: none; }
   .tabs { margin-right: auto; }
 }
