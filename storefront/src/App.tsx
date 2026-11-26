@@ -5,6 +5,7 @@ import { useAuth } from './auth/useAuth'
 import { OrderHistory } from './orders/OrderHistory'
 import { ProductList } from './products/ProductList'
 import { AdminDashboard } from './admin/AdminDashboard'
+import { ThemeToggle } from './theme/ThemeToggle'
 
 type View = 'shop' | 'orders' | 'dashboard'
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
     if (!user) {
         return (
             <main className="center">
+                <ThemeToggle className="corner-toggle" />
                 <LoginForm />
             </main>
         )
@@ -41,6 +43,7 @@ export default function App() {
                 <span className="muted who">
           {user.email} · {user.role}
         </span>
+                <ThemeToggle />
                 <button className="link" onClick={logout}>
                     Log out
                 </button>
